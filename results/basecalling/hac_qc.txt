@@ -1,0 +1,14 @@
+Basecalling model: HAC
+
+Raw data:
+Reads: 614890
+Mean length: 1326 bp
+Min: 5 bp
+Max: 1803633 bp
+
+Filtered data (2000–5000 bp):
+Reads: 203115
+Mean length: 2449 bp
+
+Conclusion:
+Length filtering is essential to recover full-length rrn operon reads and remove nanopore sequencing artifacts.
