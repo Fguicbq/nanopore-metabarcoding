@@ -3,7 +3,9 @@
 # Uso: bash scripts/basecalling.sh <RAW_DIR> <RESULTS_DIR>
 # Ejemplo: bash scripts/basecalling.sh "../data/raw" "../results/basecalling"
 
-# Comprobar que se pasaron los argumentos
+# -------------------------
+# Comprobación de argumentos
+# -------------------------
 if [ "$#" -ne 2 ]; then
     echo "Uso: $0 <RAW_DIR> <RESULTS_DIR>"
     exit 1
@@ -15,40 +17,44 @@ RESULTS_DIR=$2
 # Crear carpeta de resultados si no existe
 mkdir -p "$RESULTS_DIR"
 
-# -------------------------
-# HAC basecalling
-# -------------------------
-echo "Iniciando HAC basecalling..."
-dorado basecaller hac "$RAW_DIR" > "$RESULTS_DIR/hac.bam"
-
-# Convertir a FASTQ
-samtools fastq "$RESULTS_DIR/hac.bam" > "$RESULTS_DIR/hac.fastq"
-
-# Filtrar por longitud 2000–5000 bp
-NanoFilt -l 2000 --maxlength 5000 "$RESULTS_DIR/hac.fastq" > "$RESULTS_DIR/hac_filtered.fastq"
-
-echo "HAC basecalling y filtrado completado."
-echo "Resultados en $RESULTS_DIR"
+# Crear archivo de log con timestamp
+LOG="$RESULTS_DIR/basecalling_$(date +%Y%m%d_%H%M%S).log"
+echo "Iniciando basecalling pipeline $(date)" | tee -a "$LOG"
 
 # -------------------------
-# SUP basecalling
+# Función para ejecutar basecalling
 # -------------------------
-echo "Iniciando SUP basecalling..."
-dorado basecaller sup "$RAW_DIR" > "$RESULTS_DIR/sup.bam"
+run_basecaller() {
+    local MODEL=$1
+    local LABEL=$2
 
-# Convertir a FASTQ
-samtools fastq "$RESULTS_DIR/sup.bam" > "$RESULTS_DIR/sup.fastq"
+    echo "Iniciando $LABEL basecalling..." | tee -a "$LOG"
+    
+    BAM="$RESULTS_DIR/${MODEL}.bam"
+    FASTQ="$RESULTS_DIR/${MODEL}.fastq"
+    FILTERED="$RESULTS_DIR/${MODEL}_filtered.fastq"
 
-# Filtrar por longitud 2000–5000 bp
-NanoFilt -l 2000 --maxlength 5000 "$RESULTS_DIR/sup.fastq" > "$RESULTS_DIR/sup_filtered.fastq"
+    # Basecalling
+    dorado basecaller "$MODEL" "$RAW_DIR" > "$BAM"
+    
+    # Convertir a FASTQ
+    samtools fastq "$BAM" > "$FASTQ"
+    
+    # Filtrar por longitud 2000–5000 bp
+    NanoFilt -l 2000 --maxlength 5000 "$FASTQ" > "$FILTERED"
 
-echo "SUP basecalling y filtrado completado."
-echo "Resultados en $RESULTS_DIR"
+    echo "$LABEL basecalling y filtrado completado." | tee -a "$LOG"
+    echo "Archivos generados:" | tee -a "$LOG"
+    echo "  BAM: $BAM" | tee -a "$LOG"
+    echo "  FASTQ: $FASTQ" | tee -a "$LOG"
+    echo "  Filtrado: $FILTERED" | tee -a "$LOG"
+    echo "" | tee -a "$LOG"
+}
 
 # -------------------------
-# Resumen opcional
+# Ejecutar basecalling para HAC y SUP
 # -------------------------
-echo "Resumen de reads HAC filtrados:"
-grep -c "^@" "$RESULTS_DIR/hac_filtered.fastq"
-echo "Resumen de reads SUP filtrados:"
-grep -c "^@" "$RESULTS_DIR/sup_filtered.fastq"
+run_basecaller "hac" "HAC"
+run_basecaller "sup" "SUP"
+
+echo "Pipeline completado. Resultados en $RESULTS_DIR" | tee -a "$LOG"

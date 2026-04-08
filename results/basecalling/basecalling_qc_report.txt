@@ -1,0 +1,29 @@
+Generando QC report para HAC y SUP...
+Fecha: Wed Apr  8 12:30:35 -04 2026
+Resultados en: ./results/basecalling
+----------------------------------------
+------ HAC raw QC ------
+Total reads: 614890
+Longitud mínima: 5
+Longitud máxima: 1803633
+Longitud promedio: 1326.36
+
+------ HAC filtrados QC ------
+Total reads: 203115
+Longitud mínima: 2000
+Longitud máxima: 5000
+Longitud promedio: 2449.41
+
+------ SUP raw QC ------
+Total reads: 627290
+Longitud mínima: 5
+Longitud máxima: 1857919
+Longitud promedio: 1359
+
+------ SUP filtrados QC ------
+Total reads: 207090
+Longitud mínima: 2000
+Longitud máxima: 4999
+Longitud promedio: 2450.05
+
+QC completado. Reporte guardado en ./results/basecalling/basecalling_qc_report.txt
