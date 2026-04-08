@@ -1,5 +1,4 @@
 Generando QC report para HAC y SUP...
-Fecha: Wed Apr  8 12:30:35 -04 2026
 Resultados en: ./results/basecalling
 ----------------------------------------
 ------ HAC raw QC ------
